@@ -51,6 +51,8 @@ app.post("/travisci", (req, res) => {
         https_req.on("error", (e) => {
             console.error(e);
         });
+
+        https_req.end();
     }
     res.end();
 });
