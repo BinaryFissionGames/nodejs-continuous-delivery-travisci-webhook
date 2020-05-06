@@ -24,11 +24,13 @@ app.post("/travisci", (req, res) => {
             });
 
             get_res.on('end', () => {
-                let sig = JSON.parse(msg)?.config?.notifications?.webhook?.public_key;
-                console.log("Got travis-ci config: ");
-                console.log(msg);
+                let key = JSON.parse(msg)?.config?.notifications?.webhook?.public_key;
+                console.log("Got travis-ci config");
 
-                if (!crypto.verify("sha1", req.body.payload, sig, Buffer.from(req.get("signature"), 'base64'))) {
+                let verify = crypto.createVerify("sha1");
+                verify.update(req.body.payload);
+
+                if (!verify.verify(key, Buffer.from(req.get("signature"), 'base64'))) {
                     console.error("Failed to verify signature for post request to travisci endpoint");
                 } else {
                     console.log("Fetching code from git");
