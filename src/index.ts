@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as crypto from 'crypto';
 import * as https from 'https';
+import {gitCheckout, gitFetch, reloadPM2App} from "./action";
 
 const app = express();
 
@@ -27,26 +28,32 @@ app.post("/travisci", (req, res) => {
 
             get_res.on('end', () => {
                 let sig = JSON.parse(msg)?.config?.notifications?.webhook?.public_key;
+                console.log("Got travis-ci config: ");
+                console.log(msg);
 
                 if (!crypto.verify("sha1", req.body.payload, sig, Buffer.from(req.get("signature"), 'base64'))) {
                     console.error("Failed to verify signature for post request to travisci endpoint");
                 } else {
-                    //TODO: Get up to date branch, do stuffs
-                    console.log("Got valid notif!");
+                    console.log("Fetching code from git");
+                    gitFetch(process.env.LOCAL_GIT_REPO).then(() => {
+                        return gitCheckout(process.env.LOCAL_GIT_REPO, payload.commit);
+                    }).then(() => {
+                        return reloadPM2App(process.env.APP_NAME);
+                    }).then(() => {
+                        console.log("Reloaded PM2 app");
+                    }).catch((e) => {
+                        console.error("Error while reloading PM2 - ");
+                        console.error(e);
+                    });
                 }
-                res.end();
             });
-
         });
 
         https_req.on("error", (e) => {
             console.error(e);
-            res.end();
         });
-
-    } else {
-        res.end();
     }
+    res.end();
 });
 
 app.listen(process.env.PORT);
