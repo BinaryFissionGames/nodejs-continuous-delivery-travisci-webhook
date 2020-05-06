@@ -16,7 +16,8 @@ app.post("/travisci", (req, res) => {
         (payload.type === "push") &&
         req.get("travis-repo-slug") === process.env.REPO_SLUG) {
         let https_req = https.request("https://api.travis-ci.org/config", {
-            method: "GET"
+            method: "GET",
+            timeout: 10000
         }, (get_res) => {
             let msg = "";
 
@@ -33,6 +34,7 @@ app.post("/travisci", (req, res) => {
                     //TODO: Get up to date branch, do stuffs
                     console.log("Got valid notif!");
                 }
+                res.end();
             });
 
         });
