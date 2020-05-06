@@ -45,4 +45,18 @@ async function reloadPM2App(appName: string) {
     });
 }
 
-export {gitCheckout, gitFetch, reloadPM2App};
+async function runTypescriptCompiler(dir: string) {
+    return new Promise((resolve, reject) => {
+        exec('tsc', {
+            cwd: dir,
+        }, (err, stdout, stderr) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+}
+
+export {gitCheckout, gitFetch, reloadPM2App, runTypescriptCompiler};

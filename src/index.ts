@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as crypto from 'crypto';
 import * as https from 'https';
-import {gitCheckout, gitFetch, reloadPM2App} from "./action";
+import {gitCheckout, gitFetch, reloadPM2App, runTypescriptCompiler} from "./action";
 
 const app = express();
 
@@ -34,6 +34,8 @@ app.post("/travisci", (req, res) => {
                     console.log("Fetching code from git");
                     gitFetch(process.env.LOCAL_GIT_REPO).then(() => {
                         return gitCheckout(process.env.LOCAL_GIT_REPO, payload.commit);
+                    }).then(() => {
+                        return runTypescriptCompiler(process.env.LOCAL_GIT_REPO);
                     }).then(() => {
                         return reloadPM2App(process.env.APP_NAME);
                     }).then(() => {
