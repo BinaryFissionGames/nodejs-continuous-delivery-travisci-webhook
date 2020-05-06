@@ -9,10 +9,7 @@ app.use(express.urlencoded());
 
 app.post("/travisci", (req, res) => {
     let payload = JSON.parse(req.body.payload);
-    console.log(payload);
-    console.log(req.rawHeaders);
-    console.log(req.get("travis-repo-slug"));
-    if (payload.status === 1 &&
+    if (payload.status === 0 &&
         ((payload.status_message && payload.status_message.toLowerCase() === "passed") || (payload.result_message && payload.result_message.toLowerCase() === "passed")) &&
         (payload.type === "push") &&
         req.get("travis-repo-slug") === process.env.REPO_SLUG) {
