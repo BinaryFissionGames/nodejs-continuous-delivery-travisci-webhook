@@ -1,0 +1,19 @@
+{
+  "name": "continuous-deployment",
+  "version": "0.0.1",
+  "description": "System that listens for Travis-CI webhook notification, to pull new code.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "build": "tsc",
+    "start": "npm dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.6",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  }
+}
