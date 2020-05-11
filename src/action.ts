@@ -5,50 +5,21 @@ import {exec} from 'child_process';
 * */
 
 async function gitFetch(gitPath: string) {
-    return new Promise((resolve, reject) => {
-        exec('git fetch -a', {
-            cwd: gitPath,
-        }, (err, stdout, stderr) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
+    return runCommand(gitPath, 'git fetch -a');
 }
 
 async function gitCheckout(gitPath: string, commit: string) {
-    return new Promise((resolve, reject) => {
-        exec(`git checkout ${commit}`, {
-            cwd: gitPath,
-        }, (err, stdout, stderr) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
+    return runCommand(gitPath, `git checkout ${commit}`);
 }
 
 async function reloadPM2App(appName: string) {
-    return new Promise((resolve, reject) => {
-        exec(`pm2 reload ${appName}`, {},
-            (err, stdout, stderr) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-    });
+    return runCommand(undefined, `pm2 reload ${appName}`);
 }
 
-async function runTypescriptCompiler(dir: string) {
+async function runCommand(cwd: string, command: string) {
     return new Promise((resolve, reject) => {
-        exec('tsc', {
-            cwd: dir,
+        exec(command, {
+            cwd: cwd,
         }, (err, stdout, stderr) => {
             if (err) {
                 reject(err);
@@ -59,4 +30,4 @@ async function runTypescriptCompiler(dir: string) {
     });
 }
 
-export {gitCheckout, gitFetch, reloadPM2App, runTypescriptCompiler};
+export {gitCheckout, gitFetch, reloadPM2App, runCommand};

@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as crypto from 'crypto';
 import * as https from 'https';
-import {gitCheckout, gitFetch, reloadPM2App, runTypescriptCompiler} from "./action";
+import {gitCheckout, gitFetch, reloadPM2App, runCommand} from "./action";
 
 const app = express();
 
@@ -33,15 +33,18 @@ app.post("/travisci", (req, res) => {
                 if (!verify.verify(key, Buffer.from(req.get("signature"), 'base64'))) {
                     console.error("Failed to verify signature for post request to travisci endpoint");
                 } else {
-                    console.log("Fetching code from git");
+                    console.log("Fetching code from git...");
                     gitFetch(process.env.LOCAL_GIT_REPO).then(() => {
+                        console.log(`Fetched code from git, checking out ${payload.commit}...`);
                         return gitCheckout(process.env.LOCAL_GIT_REPO, payload.commit);
                     }).then(() => {
-                        return runTypescriptCompiler(process.env.LOCAL_GIT_REPO);
+                        console.log(`Checked out ${payload.commit}, running '${process.env.BUILD_COMMAND}'...`);
+                        return runCommand(process.env.BUILD_CWD, process.env.BUILD_COMMAND);
                     }).then(() => {
+                        console.log('Built app, reloading through PM2...');
                         return reloadPM2App(process.env.APP_NAME);
                     }).then(() => {
-                        console.log("Reloaded PM2 app");
+                        console.log("Reloaded PM2 app - done updating");
                     }).catch((e) => {
                         console.error("Error while reloading PM2 - ");
                         console.error(e);
